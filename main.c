@@ -1,6 +1,26 @@
 #include "main.h"
 
 /**
+ * frees - frees before exiting
+ * @argv: argv
+ * @cmd: cmd
+ * @cmd_cp: cmd copy
+ */
+
+void frees(char **argv, char *cmd, char *cmd_cp)
+{
+	int i;
+
+	for (i = 0; argv[i] != NULL; i++) /*free up the elemnts of argv*/
+		free(argv[i]);
+
+	free(argv), free(cmd), free(cmd_cp);
+	cmd = NULL;
+	cmd_cp = NULL;
+	argv = NULL;
+}
+
+/**
  * main - the main function
  * @argc: the number of arguments passed to the function
  * @argv: the array of arguments passed to the function
@@ -9,25 +29,26 @@
 
 int main(int argc, char **argv)
 {
-	char *prmpt = "($)", *cmd = NULL, *cmd_cp = NULL, *tokenize;
+	char *prmpt = "($) ", *cmd = NULL, *cmd_cp = NULL, *tokenize;
 	const char *delimit = " \n";
 	ssize_t num_of_chars;
 	size_t n = 0;
-	int token_num = 0, i;
+	int token_num = 0, i, interactiv = isatty(STDIN_FILENO);
 
 	(void)argc;
 	while (1)
 	{
-		printf("%s ", prmpt); /*change to _puts*/
+		if (interactiv)
+			_puts(prmpt);
 		num_of_chars = getline(&cmd, &n, stdin); /*get the input from user*/
 		if (num_of_chars == 1 && cmd[0] == '\n') /*if the user enter*/
 			continue;
 		if (num_of_chars == -1) /*if the getline fails or ctr+d */
 		{
-			printf("Exiting shell...\n"); /*change to _puts*/
-			return (-1);
+			free(cmd);
+			exit(EXIT_SUCCESS);
 		}
-		cmd_cp = strdup(cmd); /*change to _strdup*/
+		cmd_cp = _strdup(cmd);
 		tokenize = strtok(cmd, delimit); /*start tokenizing the cmd*/
 		while (tokenize)
 		{
@@ -37,16 +58,21 @@ int main(int argc, char **argv)
 		token_num++;
 		argv = malloc(sizeof(char *) * token_num);
 		tokenize = strtok(cmd_cp, delimit);
+		if (tokenize == NULL)
+			continue;
 		for (i = 0; tokenize != NULL; i++)
 		{
-			argv[i] = strdup(tokenize); /*change to strdup*/
+			argv[i] = _strdup(tokenize);
 			tokenize = strtok(NULL, delimit);
 		}
 		argv[i] = NULL; /*terminate the string*/
+		if (_strcmp(argv[0], "exit") == 0)
+		{
+			frees(argv, cmd, cmd_cp);
+			exit(EXIT_SUCCESS);
+		}
 		excmd(argv);
-		for (i = 0; argv[i] != NULL; i++) /*free up the elemnts of argv*/
-			free(argv[i]);
-		free(argv), free(cmd), free(cmd_cp);
+		frees(argv, cmd, cmd_cp);
 	}
 	return (0);
 }

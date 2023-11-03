@@ -16,19 +16,19 @@ char *locate(char *cmd)
 
 	if (path) /*if successful*/
 	{
-		path_cp = strdup(path); /*change to _strdup*/
-		cmd_len = strlen(cmd); /*change to _strlen*/
+		path_cp = _strdup(path);
+		cmd_len = _strlen(cmd);
 
 		dir = strtok(path_cp, ":");
 		while (dir)
 		{
-			dir_len = strlen(dir); /*change to _strlen*/
+			dir_len = _strlen(dir);
 			psychopath = malloc(dir_len + cmd_len + 2);
 
-			strcpy(psychopath, dir); /*change all these */
-			strcat(psychopath, "/");
-			strcat(psychopath, cmd);
-			strcat(psychopath, "\0");
+			_strcpy(psychopath, dir);
+			_strcat(psychopath, "/");
+			_strcat(psychopath, cmd);
+			_strcat(psychopath, "\0");
 			if (stat(psychopath, &statbuf) == 0) /*if the cmd is in the ir*/
 			{
 				free(path_cp);
@@ -43,7 +43,7 @@ char *locate(char *cmd)
 		free(path_cp);
 
 		if (stat(cmd, &statbuf) == 0) /*if the command exits in the air*/
-			return (strdup(cmd)); /*change to _stdup*/
+			return (_strdup(cmd));
 
 		return (NULL);
 	}
