@@ -20,13 +20,13 @@ void excmd(char **argv)
 		pid = fork();
 		if (pid == -1) /*if the forking failed*/
 		{
-			perror("Error: ");
+			perror("Error");
 			return;
 		}
 		if (pid == 0) /*if we're in the child process*/
 		{
 			if (execve(og_cmd, argv, NULL) == -1) /*if the execution failed */
-				perror("Error: ");
+				perror("Error");
 			free(og_cmd);
 			exit(EXIT_FAILURE);
 		}
