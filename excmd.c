@@ -17,9 +17,15 @@ void excmd(char **argv)
 		cmd = argv[0]; /*the command will be the first string in the array*/
 		og_cmd = locate(cmd); /*locate the path of the actual command*/
 
+		if (!og_cmd)
+		{
+			perror("Error");
+			return;
+		}
 		pid = fork();
 		if (pid == -1) /*if the forking failed*/
 		{
+			free(og_cmd);
 			perror("Error");
 			return;
 		}

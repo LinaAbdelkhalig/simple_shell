@@ -19,6 +19,7 @@ char *trim(char *string);
 int _putchar(int c);
 int _puts(char *string);
 
+void _env(char **environ);
 void excmd(char **argv);
 char *locate(char *cmd);
 

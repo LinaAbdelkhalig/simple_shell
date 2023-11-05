@@ -18,17 +18,16 @@ char *locate(char *cmd)
 	{
 		path_cp = _strdup(path);
 		cmd_len = _strlen(cmd);
-
 		dir = strtok(path_cp, ":");
 		while (dir)
 		{
 			dir_len = _strlen(dir);
 			psychopath = malloc(dir_len + cmd_len + 2);
-
 			_strcpy(psychopath, dir);
 			_strcat(psychopath, "/");
 			_strcat(psychopath, cmd);
 			_strcat(psychopath, "\0");
+
 			if (stat(psychopath, &statbuf) == 0) /*if the cmd is in the ir*/
 			{
 				free(path_cp);
@@ -37,6 +36,7 @@ char *locate(char *cmd)
 			else
 			{
 				free(psychopath);
+				psychopath = NULL;
 				dir = strtok(NULL, ":"); /*continue with the next dir in path*/
 			}
 		}
