@@ -3,10 +3,10 @@
 /**
  * excmd - executes the command passed to it
  * @argv: the string containing the command and args
- * Return: void
+ * @child_status: pointer to an in to store the child's exit status
  */
 
-void excmd(char **argv)
+void excmd(char **argv, int *child_status)
 {
 	char *cmd = NULL, *og_cmd = NULL;
 	pid_t pid;
@@ -41,6 +41,7 @@ void excmd(char **argv)
 			do {
 				waitpid(pid, &status, WUNTRACED);
 			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+			*child_status = WEXITSTATUS(status);
 			free(og_cmd);
 		}
 	}

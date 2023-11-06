@@ -57,11 +57,11 @@ int tokenize_cmd(char **cmd, char ***argv)
 	int token_num = 0, i;
 
 	cmd_cp = _strdup(*cmd);
-	tokenize = strtok(*cmd, delimit);
+	tokenize = _strtok(*cmd, delimit);
 	while (tokenize)
 	{
 		token_num++;
-		tokenize = strtok(NULL, delimit);
+		tokenize = _strtok(NULL, delimit);
 	}
 	token_num++;
 	*argv = malloc(sizeof(char *) * token_num);
@@ -72,7 +72,7 @@ int tokenize_cmd(char **cmd, char ***argv)
 		free(cmd_cp);
 		exit(EXIT_FAILURE);
 	}
-	tokenize = strtok(cmd_cp, delimit);
+	tokenize = _strtok(cmd_cp, delimit);
 	if (tokenize == NULL)
 	{
 		free(*argv);
@@ -85,7 +85,7 @@ int tokenize_cmd(char **cmd, char ***argv)
 	for (i = 0; tokenize; i++)
 	{
 		(*argv)[i] = _strdup(tokenize);
-		tokenize = strtok(NULL, delimit);
+		tokenize = _strtok(NULL, delimit);
 	}
 	(*argv)[i] = NULL;
 	free(cmd_cp);
@@ -105,7 +105,7 @@ int main(int argc, char **argv, char **environ)
 	char *prmpt = "($) ", *cmd = NULL;
 	ssize_t num_of_chars;
 	size_t n = 0;
-	int i, interactiv = isatty(STDIN_FILENO);
+	int i, interactiv = isatty(STDIN_FILENO), status, child_status = 0;
 
 	(void)argc;
 	while (1)
@@ -120,13 +120,22 @@ int main(int argc, char **argv, char **environ)
 			continue;
 		if (_strcmp(argv[0], "exit") == 0)
 		{
-			frees(&argv, &cmd);
-			exit(EXIT_SUCCESS);
+			if (argv[1])
+			{
+				status = _atoi(argv[1]);
+				frees(&argv, &cmd);
+				exiting(status);
+			}
+			else
+			{
+				frees(&argv, &cmd);
+				exit(child_status);
+			}
 		}
 		if (_strcmp(argv[0], "env") == 0)
 			_env(environ);
 		else
-			excmd(argv);
+			excmd(argv, &child_status);
 		frees(&argv, &cmd);
 	}
 	return (0);
