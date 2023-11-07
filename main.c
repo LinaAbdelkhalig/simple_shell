@@ -32,7 +32,7 @@ ssize_t get_cmd(char **cmd, size_t *n)
 {
 	ssize_t num_of_chars;
 
-	num_of_chars = getline(cmd, n, stdin);
+	num_of_chars = _getline(cmd, n, stdin);
 	if (num_of_chars == -1)
 	{
 		free(*cmd);
@@ -123,6 +123,8 @@ int main(int argc, char **argv, char **environ)
 			if (argv[1])
 			{
 				status = _atoi(argv[1]);
+				if (status == 0 && _strcmp(argv[1], "0") != 0)
+					status = 1;
 				frees(&argv, &cmd);
 				exiting(status);
 			}
