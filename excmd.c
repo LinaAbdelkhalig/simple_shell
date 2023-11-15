@@ -8,7 +8,7 @@
 
 void excmd(char **argv, int *child_status)
 {
-	char *cmd = NULL, *og_cmd = NULL;
+	char *cmd = NULL, *og_cmd = NULL, **enviro = environ;
 	pid_t pid;
 	int status;
 
@@ -19,7 +19,10 @@ void excmd(char **argv, int *child_status)
 
 		if (!og_cmd)
 		{
-			perror("Error");
+			write(2, "./hsh: 1: ", 10);
+			write(2, cmd, _strlen(cmd));
+			write(2, ": not found\n", 12);
+			*child_status = 127;
 			return;
 		}
 		pid = fork();
@@ -31,7 +34,7 @@ void excmd(char **argv, int *child_status)
 		}
 		if (pid == 0) /*if we're in the child process*/
 		{
-			if (execve(og_cmd, argv, NULL) == -1) /*if the execution failed */
+			if (execve(og_cmd, argv, enviro) == -1) /*if the execution failed */
 				perror("Error");
 			free(og_cmd);
 			exit(EXIT_FAILURE);

@@ -26,21 +26,36 @@ void frees(char ***argv, char **cmd)
  * get_cmd - gets the command from user input
  * @cmd: pointer to the command string
  * @n: size of the command string
+ * @child_status: pointer to the exiting status
  * Return: number of characters in the command
  */
-ssize_t get_cmd(char **cmd, size_t *n)
+ssize_t get_cmd(char **cmd, size_t *n, int *child_status)
 {
-	ssize_t num_of_chars;
+	ssize_t num_of_chars, i = 0;
 
-	num_of_chars = _getline(cmd, n, stdin);
+	num_of_chars = getline(cmd, n, stdin);
 	if (num_of_chars == -1)
 	{
 		free(*cmd);
 		*cmd = NULL;
-		exit(EXIT_SUCCESS);
+		exit(*child_status);
 	}
 
-	return (num_of_chars);
+	if ((*cmd)[0] == '#')
+	{
+		free(*cmd);
+		*cmd = NULL;
+		return (0);
+	}
+	for (i = 0; (*cmd)[i] != '\0'; i++)
+	{
+		if ((*cmd)[i] == '#' && (*cmd)[i - 1] == ' ')
+		{
+			(*cmd)[i] = '\0';
+			break;
+		}
+	}
+	return (_strlen(*cmd));
 }
 
 /**
@@ -105,15 +120,16 @@ int main(int argc, char **argv, char **environ)
 	char *prmpt = "($) ", *cmd = NULL;
 	ssize_t num_of_chars;
 	size_t n = 0;
-	int i, interactiv = isatty(STDIN_FILENO), status, child_status = 0;
+	int i, interactiv = isatty(STDIN_FILENO), child_status = 0;
 
 	(void)argc;
 	while (1)
 	{
 		if (interactiv)
 			_puts(prmpt);
-		num_of_chars = get_cmd(&cmd, &n); /*get the input from user*/
-		if (num_of_chars == 1 && cmd[0] == '\n') /*if the user enter*/
+		num_of_chars = get_cmd(&cmd, &n, &child_status); /*get the input from user*/
+		/*if the user enter or comment only*/
+		if ((num_of_chars == 1 && cmd[0] == '\n') || (num_of_chars == 0))
 			continue;
 		i = tokenize_cmd(&cmd, &argv);/*tokenize and return no. of tokens*/
 		if (i == -1)
@@ -122,17 +138,16 @@ int main(int argc, char **argv, char **environ)
 		{
 			if (argv[1])
 			{
-				status = _atoi(argv[1]);
-				if (status == 0 && _strcmp(argv[1], "0") != 0)
-					status = 1;
-				frees(&argv, &cmd);
-				exiting(status);
+				child_status = _atoi(argv[1]);
+				if (child_status < 0 || (child_status == 0 && _strcmp(argv[1], "0") != 0))
+				{
+					write(2, "./hsh: 1: exit: Illegal number: ", 32);
+					write(2, argv[1], _strlen(argv[1])), write(2, "\n", 1);
+					child_status = 2;
+				}
 			}
-			else
-			{
-				frees(&argv, &cmd);
-				exit(child_status);
-			}
+			frees(&argv, &cmd);
+			exit(child_status);
 		}
 		if (_strcmp(argv[0], "env") == 0)
 			_env(environ);
