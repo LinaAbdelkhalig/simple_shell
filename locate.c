@@ -87,7 +87,7 @@ char *locate(char *cmd)
 	int cmd_len;
 	struct stat statbuf;
 
-	if (path) /*if successful*/
+	if (path && path[0]) /*if successful*/
 	{
 		path_cp = _strdup(path);
 		if (!path_cp)
@@ -121,6 +121,6 @@ char *locate(char *cmd)
 		free(path), free(path_cp);
 		return (stat(cmd, &statbuf) == 0 ? _strdup(cmd) : NULL); /*cmdintheair */
 	}
-	free(path);
-	return (NULL);
+	else
+		return (stat(cmd, &statbuf) == 0 ? _strdup(cmd) : NULL);
 }
